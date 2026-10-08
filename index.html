@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f6f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141215" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Study">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='17' r='12' fill='%237b4a6d'/%3E%3Cpath d='M16 10v7l5 3' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Elif's Study Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@300;400;500&display=swap">
+<style>
+/* Layout: dashboard; the stopwatch sits in the centre column, habit + fun money widgets on the left, chores on the right; stacks with the clock first on phones */
+:root {
+  --bg: #f7f6f5;
+  --fg: #1c1a1d;
+  --muted: #7d7880;
+  --line: #e4e1e3;
+  --card: #ffffff;
+  --soft: #eeecee;
+  --accent: #7b4a6d;
+  --good: #3f7a55;
+  --warn: #a5552f;
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141215; --fg: #ebe7ea; --muted: #8f8891; --line: #2a262b; --soft: #1e1b1f; --card: #1b181c;
+    --accent: #cf9dbf; --good: #7cbf93; --warn: #e09a74; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141215; --fg: #ebe7ea; --muted: #8f8891; --line: #2a262b; --soft: #1e1b1f; --card: #1b181c;
+  --accent: #cf9dbf; --good: #7cbf93; --warn: #e09a74; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); -webkit-text-size-adjust: 100%; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--sans); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 24px 48px; display: grid; gap: 16px;
+  grid-template-columns: minmax(0, 1fr); grid-template-areas: "banner" "clock" "habit" "chores" "money"; }
+#topbar { grid-area: banner; display: grid; gap: 8px; }
+.signin { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 10px 12px 10px 16px; font-size: 13px; color: var(--muted); }
+.account { display: flex; gap: 8px; justify-content: flex-end; align-items: center; font-size: 12px; color: var(--muted); }
+.clock { grid-area: clock; }
+#habit { grid-area: habit; }
+#chores { grid-area: chores; }
+#money { grid-area: money; }
+@media (min-width: 720px) {
+  .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "banner banner" "clock clock" "habit chores" "money chores"; }
+}
+@media (min-width: 1080px) {
+  .wrap { min-height: 100%; align-content: center;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-areas: "banner banner banner" "habit clock chores" "money clock chores"; }
+}
+.widget { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; align-content: start; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.label { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+h2 { margin: 0; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+section { display: grid; gap: 14px; }
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.head .num { font-size: 13px; color: var(--muted); }
+
+/* clock */
+.clock { display: grid; gap: 22px; justify-items: center; align-content: center; text-align: center; padding-block: 40px; }
+.clock > * { width: 100%; max-width: 420px; }
+.clock .clock-row { justify-content: center; }
+.clock .clock-row:last-of-type { flex-direction: column; gap: 10px; }
+.clock .date { color: var(--muted); font-size: 13px; }
+.time { text-align: center; font-family: var(--mono); font-weight: 300; font-size: clamp(60px, 16vw, 104px); line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.time.running { color: var(--accent); }
+.bar { height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s ease; }
+.bar.done > i { background: var(--good); }
+.clock-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.clock-row .num { font-size: 13px; color: var(--muted); }
+
+button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--fg); padding: 8px 14px; }
+button:hover { border-color: var(--muted); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--fg); color: var(--bg); border-color: var(--fg); padding: 12px 28px; font-weight: 500; min-width: 120px; }
+button.primary.stop { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+button.link { border: 0; padding: 4px 6px; color: var(--muted); font-size: 13px; }
+button.link:hover { color: var(--fg); }
+button:disabled { opacity: .4; cursor: default; }
+
+/* habit grid */
+.grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.cell { aspect-ratio: 1; border-radius: 3px; background: var(--soft); max-width: 100%; }
+.cell.part { background: color-mix(in srgb, var(--accent) 35%, var(--soft)); }
+.cell.hit { background: var(--accent); }
+.cell.today { outline: 1.5px solid var(--fg); outline-offset: 1px; }
+.cell.future { background: transparent; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); align-items: center; flex-wrap: wrap; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; background: var(--soft); }
+.legend i.part { background: color-mix(in srgb, var(--accent) 35%, var(--soft)); }
+.legend i.hit { background: var(--accent); }
+
+/* stats row */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.stat { display: grid; gap: 2px; }
+.stat b { font-family: var(--mono); font-weight: 400; font-size: clamp(16px, 1.6vw, 21px); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat b.owe { color: var(--warn); }
+.stat b.ok { color: var(--good); }
+
+/* lists */
+ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+li { display: flex; align-items: center; gap: 12px; padding-block: 10px; border-bottom: 1px solid var(--line); min-width: 0; }
+li .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+li .meta { color: var(--muted); font-size: 12px; }
+li.done .grow { color: var(--muted); text-decoration: line-through; }
+.check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--muted); padding: 0; flex: none; display: grid; place-items: center; }
+li.done .check { background: var(--good); border-color: var(--good); }
+li.done .check::after { content: ""; width: 8px; height: 5px; border: solid var(--bg); border-width: 0 0 2px 2px; transform: translateY(-1px) rotate(-45deg); }
+.empty { color: var(--muted); font-size: 13px; padding-block: 10px; border-bottom: 1px solid var(--line); }
+
+form { display: flex; gap: 8px; flex-wrap: wrap; }
+input { font: inherit; color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; min-width: 0; }
+input::placeholder { color: var(--muted); }
+form .text { flex: 1 1 180px; }
+form .amt { flex: 0 1 110px; }
+
+.note { font-size: 12px; color: var(--muted); }
+.banner { font-size: 13px; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; }
+
+@media (max-width: 420px) { .stat b { font-size: 19px; } }
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <div class="topbar" id="topbar">
+    <div id="signInBox" class="signin">
+      <span>Sign in to save your time and sync your phone and mac.</span>
+      <button type="button" id="signIn">Sign in with Google</button>
+    </div>
+    <div id="account" class="account" hidden><span id="who"></span><button type="button" class="link" id="signOut">sign out</button></div>
+    <div id="banner" class="banner" hidden></div>
+  </div>
+
+  <section class="clock" aria-label="Today">
+    <div class="clock-row">
+      <div class="date" id="date"></div>
+      <button class="link" id="adjustBtn" type="button">fix time</button>
+    </div>
+    <div class="time" id="time">0:00:00</div>
+    <div class="bar" id="bar"><i></i></div>
+    <div class="clock-row">
+      <button class="primary" id="toggle" type="button">Start</button>
+      <span class="num" id="goalText">0 of 2:00 today</span>
+    </div>
+    <form id="adjustForm" hidden>
+      <input class="amt num" id="adjustMin" type="number" inputmode="numeric" placeholder="± minutes" aria-label="Minutes to add or remove from today">
+      <button type="submit">Apply</button>
+      <span class="note" style="align-self:center">for when you studied but forgot to start it</span>
+    </form>
+  </section>
+
+  <section class="widget" id="habit" aria-labelledby="habitH">
+    <div class="head"><h2 id="habitH">2 hours a day</h2><span class="num" id="streak"></span></div>
+    <div class="grid" id="grid" aria-label="Last days"></div>
+    <div class="legend">
+      <span><i></i>nothing</span><span><i class="part"></i>under 2h</span><span><i class="hit"></i>2h+</span>
+    </div>
+  </section>
+
+  <section class="widget" id="chores" aria-labelledby="choreH">
+    <div class="head"><h2 id="choreH">Chores</h2><span class="note">1 per hour studied</span></div>
+    <div class="stats">
+      <div class="stat"><span class="label">earned</span><b id="cEarned">0</b></div>
+      <div class="stat"><span class="label">done</span><b id="cDone">0</b></div>
+      <div class="stat"><span class="label">owed</span><b id="cOwed">0</b></div>
+    </div>
+    <ul id="choreList"></ul>
+    <form id="choreForm">
+      <input class="text" id="choreInput" placeholder="add a chore, e.g. laundry" aria-label="New chore" maxlength="80" autocomplete="off">
+      <button type="submit">Add</button>
+    </form>
+  </section>
+
+  <section class="widget" id="money" aria-labelledby="funH">
+    <div class="head"><h2 id="funH">Fun money</h2><span class="note">1000 TL per 4 hours</span></div>
+    <div class="stats">
+      <div class="stat"><span class="label">earned</span><b id="fEarned">0</b></div>
+      <div class="stat"><span class="label">spent</span><b id="fSpent">0</b></div>
+      <div class="stat"><span class="label">left</span><b id="fLeft">0</b></div>
+    </div>
+    <div class="note" id="nextPay"></div>
+    <ul id="spendList"></ul>
+    <form id="spendForm">
+      <input class="text" id="spendNote" placeholder="what was it" aria-label="What you bought" maxlength="80" autocomplete="off">
+      <input class="amt num" id="spendAmt" type="number" inputmode="decimal" min="0" step="any" placeholder="TL" aria-label="Amount in TL">
+      <button type="submit">Log</button>
+    </form>
+  </section>
+</main>
+
+<script type="module">
+(() => {
+  const GOAL = 120 * 60000;          // 2 hours
+  const CHORE_EVERY = 60 * 60000;    // 1 chore per hour
+  const PAY_EVERY = 240 * 60000;     // 1000 TL per 4 hours
+  const PAY = 1000;
+  const $ = (id) => document.getElementById(id);
+  const tl = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 });
+
+  // ---------- state ----------
+  const S = {
+    days: {},          // "YYYY-MM-DD" -> ms
+    runningSince: null,
+    chores: [],        // {id, name, done, createdAt, doneAt}
+    spends: [],        // {id, note, amount, at}
+  };
+  let store = null;    // { timer, days, chores, spends } refs, or null in local mode
+
+  // ---------- dates (device local time) ----------
+  const key = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const startOfDay = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const nextDay = (t) => { const d = new Date(startOfDay(t)); d.setDate(d.getDate() + 1); return d.getTime(); };
+
+  // split a [from, to) interval into per-day chunks
+  function splitByDay(from, to) {
+    const out = {};
+    let t = from;
+    while (t < to) {
+      const end = Math.min(nextDay(t), to);
+      const k = key(new Date(t));
+      out[k] = (out[k] || 0) + (end - t);
+      t = end;
+    }
+    return out;
+  }
+
+  function dayMs(k, now) {
+    let ms = S.days[k] || 0;
+    if (S.runningSince) ms += splitByDay(S.runningSince, now)[k] || 0;
+    return ms;
+  }
+  function totalMs(now) {
+    let ms = 0;
+    for (const v of Object.values(S.days)) ms += v;
+    if (S.runningSince) ms += Math.max(0, now - S.runningSince);
+    return ms;
+  }
+
+  const fmtClock = (ms) => {
+    const s = Math.floor(ms / 1000);
+    return `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  };
+  const fmtHM = (ms) => { const m = Math.floor(ms / 60000); return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`; };
+
+  // ---------- render ----------
+  function renderClock() {
+    const now = Date.now();
+    const today = key(new Date(now));
+    const ms = dayMs(today, now);
+    $("date").textContent = new Date(now).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+    const t = $("time");
+    t.textContent = fmtClock(ms);
+    t.classList.toggle("running", !!S.runningSince);
+    const bar = $("bar");
+    bar.firstElementChild.style.width = Math.min(100, (ms / GOAL) * 100) + "%";
+    bar.classList.toggle("done", ms >= GOAL);
+    $("goalText").textContent = ms >= GOAL ? `minimum done · ${fmtHM(ms)} today` : `${fmtHM(GOAL - ms)} left of 2:00`;
+    const btn = $("toggle");
+    btn.textContent = S.runningSince ? "Stop" : "Start";
+    btn.classList.toggle("stop", !!S.runningSince);
+    renderMoney(now);
+  }
+
+  let lastGridKey = "";
+  function renderGrid() {
+    const now = Date.now();
+    const cols = 10;
+    const n = 60;
+    const today = startOfDay(now);
+    const sig = cols + "|" + key(new Date(now)) + "|" + JSON.stringify(S.days) + "|" + (S.runningSince ? Math.floor(dayMs(key(new Date(now)), now) / GOAL) : "");
+    if (sig === lastGridKey) return;
+    lastGridKey = sig;
+    const g = $("grid");
+    g.textContent = "";
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      const k = key(d);
+      const ms = dayMs(k, now);
+      const c = document.createElement("div");
+      c.className = "cell" + (ms >= GOAL ? " hit" : ms > 0 ? " part" : "") + (i === 0 ? " today" : "");
+      c.title = `${d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} · ${fmtHM(ms)}`;
+      g.appendChild(c);
+    }
+    // streak: consecutive 2h+ days ending today (today counts if hit, otherwise start from yesterday)
+    let streak = 0;
+    for (let i = 0; i < 400; i++) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      const ms = dayMs(key(d), now);
+      if (ms >= GOAL) streak++;
+      else if (i === 0) continue;
+      else break;
+    }
+    $("streak").textContent = streak === 1 ? "1 day streak" : `${streak} day streak`;
+  }
+
+  function renderChores() {
+    const now = Date.now();
+    const earned = Math.floor(totalMs(now) / CHORE_EVERY);
+    const done = S.chores.filter(c => c.done).length;
+    const owed = Math.max(0, earned - done);
+    $("cEarned").textContent = earned;
+    $("cDone").textContent = done;
+    const o = $("cOwed");
+    o.textContent = owed;
+    o.className = owed > 0 ? "owe" : "ok";
+
+    const list = $("choreList");
+    list.textContent = "";
+    const items = [...S.chores].sort((a, b) => (a.done - b.done) || (a.done ? (b.doneAt || 0) - (a.doneAt || 0) : (a.createdAt || 0) - (b.createdAt || 0))).slice(0, 30);
+    if (!items.length) {
+      const e = document.createElement("li"); e.className = "empty"; e.style.display = "block";
+      e.textContent = "No chores yet. Add the ones you keep putting off.";
+      list.appendChild(e);
+    }
+    for (const c of items) {
+      const li = document.createElement("li");
+      if (c.done) li.className = "done";
+      const b = document.createElement("button");
+      b.className = "check"; b.type = "button";
+      b.setAttribute("aria-label", c.done ? `Mark ${c.name} not done` : `Mark ${c.name} done`);
+      b.onclick = () => toggleChore(c);
+      const t = document.createElement("span"); t.className = "grow"; t.textContent = c.name;
+      const del = document.createElement("button"); del.className = "link"; del.type = "button"; del.textContent = "remove";
+      del.onclick = () => removeChore(c);
+      li.append(b, t);
+      if (c.done && c.doneAt) {
+        const m = document.createElement("span"); m.className = "meta";
+        m.textContent = new Date(c.doneAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+        li.append(m);
+      }
+      li.append(del);
+      list.appendChild(li);
+    }
+  }
+  let lastChoreHours = -1;
+
+  function renderMoney(now) {
+    const total = totalMs(now);
+    const earned = Math.floor(total / PAY_EVERY) * PAY;
+    const spent = S.spends.reduce((s, x) => s + (Number(x.amount) || 0), 0);
+    $("fEarned").textContent = tl.format(earned) + " TL";
+    $("fSpent").textContent = tl.format(spent) + " TL";
+    const left = $("fLeft");
+    left.textContent = tl.format(earned - spent) + " TL";
+    left.className = earned - spent < 0 ? "owe" : "";
+    const toNext = PAY_EVERY - (total % PAY_EVERY);
+    $("nextPay").textContent = `${fmtHM(toNext)} of studying until the next 1000 TL · ${fmtHM(total)} studied all time`;
+
+    const hours = Math.floor(total / CHORE_EVERY);
+    if (hours !== lastChoreHours) { lastChoreHours = hours; renderChores(); }
+  }
+
+  function renderSpends() {
+    const list = $("spendList");
+    list.textContent = "";
+    const items = [...S.spends].sort((a, b) => (b.at || 0) - (a.at || 0)).slice(0, 20);
+    if (!items.length) {
+      const e = document.createElement("li"); e.className = "empty"; e.style.display = "block";
+      e.textContent = "Nothing spent yet.";
+      list.appendChild(e);
+    }
+    for (const s of items) {
+      const li = document.createElement("li");
+      const t = document.createElement("span"); t.className = "grow"; t.textContent = s.note || "untitled";
+      const m = document.createElement("span"); m.className = "meta";
+      m.textContent = new Date(s.at).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+      const a = document.createElement("span"); a.className = "num"; a.textContent = tl.format(s.amount) + " TL";
+      const del = document.createElement("button"); del.className = "link"; del.type = "button"; del.textContent = "remove";
+      del.onclick = () => removeSpend(s);
+      li.append(t, m, a, del);
+      list.appendChild(li);
+    }
+    renderMoney(Date.now());
+  }
+
+  function renderAll() { renderClock(); renderGrid(); renderChores(); renderSpends(); }
+
+  // ---------- writes ----------
+  function fail(e) {
+    const b = $("banner");
+    b.hidden = false;
+    b.textContent = e && (e.code === "quota_exceeded" || e.code === "resource-exhausted")
+      ? "Storage is full. Remove some old chores or spends."
+      : "Couldn't save that change. Check your connection and try again.";
+  }
+
+  async function addToDays(chunks) {
+    for (const [k, ms] of Object.entries(chunks)) {
+      S.days[k] = Math.max(0, (S.days[k] || 0) + ms);
+      if (store) await store.days.doc(k).set({ ms: S.days[k] }).catch(fail);
+    }
+  }
+
+  let busy = false;
+  async function toggle() {
+    if (busy) return; busy = true;
+    try {
+      const now = Date.now();
+      if (S.runningSince) {
+        const since = S.runningSince;
+        S.runningSince = null;
+        renderAll();
+        await addToDays(splitByDay(since, now));
+        if (store) await store.timer.set({ runningSince: null }).catch(fail);
+      } else {
+        S.runningSince = now;
+        renderAll();
+        if (store) await store.timer.set({ runningSince: now }).catch(fail);
+      }
+    } finally { busy = false; }
+  }
+
+  async function adjust(min) {
+    const k = key(new Date());
+    const cur = S.days[k] || 0;
+    const delta = Math.max(-cur, min * 60000);
+    await addToDays({ [k]: delta });
+    renderAll();
+  }
+
+  async function addChore(name) {
+    const c = { name, done: false, createdAt: Date.now(), doneAt: null };
+    if (store) {
+      const ref = store.chores.doc();
+      S.chores.push({ id: ref.id, ...c }); renderChores();
+      await ref.set(c).catch(fail);
+    } else { S.chores.push({ id: String(Math.random()), ...c }); renderChores(); }
+  }
+  async function toggleChore(c) {
+    const done = !c.done;
+    const patch = { done, doneAt: done ? Date.now() : null };
+    Object.assign(c, patch); renderChores();
+    if (store) await store.chores.doc(c.id).update(patch).catch(fail);
+  }
+  async function removeChore(c) {
+    S.chores = S.chores.filter(x => x !== c); renderChores();
+    if (store) await store.chores.doc(c.id).delete().catch(fail);
+  }
+  async function addSpend(note, amount) {
+    const s = { note, amount, at: Date.now() };
+    if (store) {
+      const ref = store.spends.doc();
+      S.spends.push({ id: ref.id, ...s }); renderSpends();
+      await ref.set(s).catch(fail);
+    } else { S.spends.push({ id: String(Math.random()), ...s }); renderSpends(); }
+  }
+  async function removeSpend(s) {
+    S.spends = S.spends.filter(x => x !== s); renderSpends();
+    if (store) await store.spends.doc(s.id).delete().catch(fail);
+  }
+
+  // ---------- events ----------
+  $("toggle").onclick = toggle;
+  $("adjustBtn").onclick = () => { const f = $("adjustForm"); f.hidden = !f.hidden; if (!f.hidden) $("adjustMin").focus(); };
+  $("adjustForm").onsubmit = (e) => {
+    e.preventDefault();
+    const v = Number($("adjustMin").value);
+    if (!v) return;
+    adjust(v); $("adjustMin").value = ""; $("adjustForm").hidden = true;
+  };
+  $("choreForm").onsubmit = (e) => {
+    e.preventDefault();
+    const v = $("choreInput").value.trim();
+    if (!v) return;
+    addChore(v); $("choreInput").value = "";
+  };
+  $("spendForm").onsubmit = (e) => {
+    e.preventDefault();
+    const amt = Number($("spendAmt").value);
+    if (!(amt > 0)) { $("spendAmt").focus(); return; }
+    addSpend($("spendNote").value.trim(), amt);
+    $("spendNote").value = ""; $("spendAmt").value = "";
+  };
+
+  setInterval(() => { renderClock(); if (S.runningSince) renderGrid(); }, 1000);
+  renderAll();
+
+  // ---------- sync (Firebase) ----------
+  (async () => {
+    const V = "10.12.2";
+    let fb;
+    try {
+      const [app, auth, fs] = await Promise.all([
+        import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+        import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+        import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`),
+      ]);
+      fb = { ...app, ...auth, ...fs };
+    } catch (e) {
+      const b = $("banner"); b.hidden = false;
+      b.textContent = "Couldn't reach the sync service. Check your connection and reload.";
+      return;
+    }
+    const app = fb.initializeApp({
+      apiKey: "AIzaSyBTboWhqe7dFy1XsSCAiknI4kIv_Ka4hKI",
+      authDomain: "study-ledger-60746.firebaseapp.com",
+      projectId: "study-ledger-60746",
+      storageBucket: "study-ledger-60746.firebasestorage.app",
+      messagingSenderId: "152601429181",
+      appId: "1:152601429181:web:71e3e07ab3b757b18223d4",
+    });
+    const auth = fb.getAuth(app);
+    const db = fb.initializeFirestore(app, { localCache: fb.persistentLocalCache() });
+
+    // tiny adapter so the rest of the page talks to one shape
+    const docRef = (ref) => ({
+      id: ref.id,
+      set: (d) => fb.setDoc(ref, d),
+      update: (d) => fb.updateDoc(ref, d),
+      delete: () => fb.deleteDoc(ref),
+    });
+    const colRef = (ref) => ({ doc: (id) => docRef(id ? fb.doc(ref, id) : fb.doc(ref)) });
+
+    let unsubs = [];
+    const banner = $("banner");
+    const account = $("account");
+
+    $("signIn").onclick = async () => {
+      try { await fb.signInWithPopup(auth, new fb.GoogleAuthProvider()); }
+      catch (e) {
+        if (e && e.code === "auth/popup-blocked") await fb.signInWithRedirect(auth, new fb.GoogleAuthProvider());
+        else if (!(e && e.code === "auth/popup-closed-by-user")) { banner.hidden = false; banner.textContent = "Sign-in didn't go through. Try again."; }
+      }
+    };
+    $("signOut").onclick = () => fb.signOut(auth);
+
+    fb.onAuthStateChanged(auth, (u) => {
+      unsubs.forEach((f) => f()); unsubs = [];
+      if (!u) {
+        store = null;
+        account.hidden = true;
+        $("signInBox").hidden = false;
+        banner.hidden = true;
+        return;
+      }
+      $("signInBox").hidden = true;
+      banner.hidden = true;
+      account.hidden = false;
+      $("who").textContent = u.email || "signed in";
+
+      const base = `users/${u.uid}`;
+      const timer = fb.doc(db, `${base}/meta/timer`);
+      const days = fb.collection(db, `${base}/days`);
+      const chores = fb.collection(db, `${base}/chores`);
+      const spends = fb.collection(db, `${base}/spends`);
+      store = { timer: docRef(timer), days: colRef(days), chores: colRef(chores), spends: colRef(spends) };
+      S.days = {}; S.chores = []; S.spends = []; S.runningSince = null;
+
+      const onErr = (e) => fail(e);
+      unsubs.push(fb.onSnapshot(timer, (s) => {
+        const d = s.exists() ? s.data() : null;
+        S.runningSince = d && d.runningSince ? Number(d.runningSince) : null;
+        renderClock(); lastGridKey = ""; renderGrid();
+      }, onErr));
+      unsubs.push(fb.onSnapshot(days, (q) => {
+        const out = {};
+        q.forEach((d) => { out[d.id] = Number(d.data().ms) || 0; });
+        S.days = out;
+        renderClock(); lastGridKey = ""; renderGrid(); lastChoreHours = -1;
+      }, onErr));
+      unsubs.push(fb.onSnapshot(chores, (q) => {
+        S.chores = q.docs.map((d) => ({ id: d.id, ...d.data() }));
+        renderChores();
+      }, onErr));
+      unsubs.push(fb.onSnapshot(spends, (q) => {
+        S.spends = q.docs.map((d) => ({ id: d.id, ...d.data() }));
+        renderSpends();
+      }, onErr));
+    });
+  })();
+})();
+</script>
+</body>
+</html>
