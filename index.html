@@ -224,8 +224,10 @@ form .amt { flex: 0 1 110px; }
   let store = null;    // { timer, days, chores, spends } refs, or null in local mode
 
   // ---------- dates (device local time) ----------
-  const key = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const startOfDay = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  // a "day" runs from 06:00 to 06:00, so an all-nighter counts toward the day it started
+  const DAY_START_HOUR = 6;
+  const startOfDay = (t) => { const d = new Date(t); d.setHours(DAY_START_HOUR, 0, 0, 0); if (d.getTime() > t) d.setDate(d.getDate() - 1); return d.getTime(); };
+  const key = (x) => { const d = new Date(startOfDay(x instanceof Date ? x.getTime() : x)); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
   const nextDay = (t) => { const d = new Date(startOfDay(t)); d.setDate(d.getDate() + 1); return d.getTime(); };
 
   // split a [from, to) interval into per-day chunks
@@ -264,7 +266,7 @@ form .amt { flex: 0 1 110px; }
     const now = Date.now();
     const today = key(new Date(now));
     const ms = dayMs(today, now);
-    $("date").textContent = new Date(now).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+    $("date").textContent = new Date(startOfDay(now)).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
     const t = $("time");
     t.textContent = fmtClock(ms);
     t.classList.toggle("running", !!S.runningSince);
