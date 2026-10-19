@@ -144,17 +144,18 @@ body[data-view="wear"] .wrap { grid-template-columns: minmax(0, 1fr); grid-templ
 body[data-view="wear"] .wrap > section:not(#wear) { display: none; }
 body[data-view="wear"] #wear { display: grid; }
 
-/* what to wear */
+/* what to wear: whimsigoth palette */
 :root {
-  --skin: #d9b59a; --hair: #3b2c2a;
-  --c-tee: #e8dfd2; --c-long: #9fb3c8; --c-knit: #b07a5e; --c-light: #a9b49a; --c-jacket: #6f7f8f; --c-coat: #5b4a52;
-  --c-pants: #3f4f6b; --c-shorts: #8a9bb4; --c-scarf: #b4495f; --c-umb: var(--accent);
+  --skin: #e2c2a8; --hair: #2a1d24; --c-lip: #8e3a52;
+  --c-tee: #3a2f3d; --c-long: #5a3d5c; --c-knit: #6e2a3a; --c-light: #9a7f96; --c-jacket: #2f2733; --c-coat: #4a2a45;
+  --c-skirt: #3b2a48; --c-shorts: #2c2430; --c-tights: #1f1a22; --c-lace: #d9c9a3; --c-shoe: #1c171e;
+  --c-scarf: #6b1f35; --c-umb: #3b2a48;
   --sun: #d79a2b; --cloud: #a7a2aa; --rain: #5f86b5;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --skin: #c9a184; --hair: #120e10; --c-tee: #d8cfc2; --c-long: #7f95ab; --c-knit: #9c6a51; --c-light: #8d987f; --c-jacket: #586776; --c-coat: #6e5a64; --c-pants: #33415a; --c-shorts: #6e809a; --c-scarf: #c45a70; --sun: #e4ae4a; --cloud: #8f8a93; --rain: #7ea3cf; }
+  :root:not([data-theme="light"]) { --skin: #d4b096; --hair: #0f0b0e; --c-lip: #b9566f; --c-tee: #4d4152; --c-long: #6e4f71; --c-knit: #87384b; --c-light: #a68ca2; --c-jacket: #4a4050; --c-coat: #6a3f63; --c-skirt: #57406a; --c-shorts: #4a3f50; --c-tights: #3a3240; --c-lace: #e6d7b0; --c-shoe: #2b2430; --c-scarf: #8f2c48; --c-umb: #57406a; --sun: #e4ae4a; --cloud: #8f8a93; --rain: #7ea3cf; }
 }
-:root[data-theme="dark"] { --skin: #c9a184; --hair: #120e10; --c-tee: #d8cfc2; --c-long: #7f95ab; --c-knit: #9c6a51; --c-light: #8d987f; --c-jacket: #586776; --c-coat: #6e5a64; --c-pants: #33415a; --c-shorts: #6e809a; --c-scarf: #c45a70; --sun: #e4ae4a; --cloud: #8f8a93; --rain: #7ea3cf; }
+:root[data-theme="dark"] { --skin: #d4b096; --hair: #0f0b0e; --c-lip: #b9566f; --c-tee: #4d4152; --c-long: #6e4f71; --c-knit: #87384b; --c-light: #a68ca2; --c-jacket: #4a4050; --c-coat: #6a3f63; --c-skirt: #57406a; --c-shorts: #4a3f50; --c-tights: #3a3240; --c-lace: #e6d7b0; --c-shoe: #2b2430; --c-scarf: #8f2c48; --c-umb: #57406a; --sun: #e4ae4a; --cloud: #8f8a93; --rain: #7ea3cf; }
 
 #wear { gap: 16px; max-width: 980px; width: 100%; justify-self: center; }
 .hero { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); align-items: center; }
@@ -742,31 +743,34 @@ body[data-view="wear"] #wear { display: grid; }
     const o = {};
     o.outer = cold <= 6 ? "coat" : cold <= 12 ? "jacket" : cold <= 17 ? "light" : null;
     o.top = warm <= 14 ? "knit" : warm <= 21 ? "long" : "tee";
-    o.bottom = warm >= 26 ? "shorts" : "pants";
+    o.bottom = Number(d.date.slice(8)) % 2 ? "skirt" : "shorts";   // alternate so the week isn't all one look
+    o.tights = cold <= 3 ? "fleece" : cold <= 12 ? "opaque" : cold <= 16 ? "sheer" : null;
     o.scarf = cold <= 3;
     o.beanie = cold <= 0;
-    o.boots = d.kind === "snow";
-    o.umbrella = !o.boots && (d.rain >= 40 || d.kind === "rain" || d.kind === "storm");
+    o.boots = cold <= 8 || d.kind === "snow" || d.kind === "rain" || d.kind === "storm" || d.rain >= 40;
+    o.umbrella = d.kind !== "snow" && (d.rain >= 40 || d.kind === "rain" || d.kind === "storm");
     o.shades = d.uv >= 5 && (d.kind === "sun" || d.kind === "part") && warm >= 16;
     const items = [];
-    if (o.outer === "coat") items.push(["coat or puffer", "--c-coat"]);
+    if (o.outer === "coat") items.push(["long velvet coat or puffer", "--c-coat"]);
     if (o.outer === "jacket") items.push(["jacket", "--c-jacket"]);
-    if (o.outer === "light") items.push(["light jacket or cardigan", "--c-light"]);
-    items.push(o.top === "knit" ? ["sweater", "--c-knit"] : o.top === "long" ? ["long sleeve top", "--c-long"] : ["t-shirt", "--c-tee"]);
-    items.push(o.bottom === "shorts" ? ["skirt or a dress", "--c-shorts"] : ["jeans or trousers", "--c-pants"]);
+    if (o.outer === "light") items.push(["lace cardigan or kimono", "--c-light"]);
+    items.push(o.top === "knit" ? ["chunky sweater", "--c-knit"] : o.top === "long" ? ["long sleeve top", "--c-long"] : ["tee or cami", "--c-tee"]);
+    items.push(o.bottom === "skirt" ? ["skirt", "--c-skirt"] : ["shorts", "--c-shorts"]);
+    if (o.tights) items.push([o.tights === "fleece" ? "fleece-lined tights" : o.tights + " tights", "--c-tights"]);
     if (o.scarf) items.push(["scarf", "--c-scarf"]);
     if (o.beanie) items.push(["beanie", "--c-scarf"]);
-    if (o.boots) items.push(["boots", "--fg"]);
+    items.push(o.boots ? ["boots", "--c-shoe"] : ["mary janes", "--c-shoe"]);
     if (o.umbrella) items.push(["umbrella", "--c-umb"]);
-    if (o.shades) items.push(["sunglasses", "--fg"]);
+    if (o.shades) items.push(["sunglasses", "--c-shoe"]);
     o.items = items;
 
     const tips = [];
     if (warm - cold >= 10) tips.push("big swing today, so wear layers you can peel off by afternoon. onion mode.");
-    if (d.wind >= 30) tips.push(`windy (up to ${Math.round(d.wind)} km/h), the bozkır wind cuts through so zip up.`);
-    if (d.kind === "snow") tips.push("snow in the forecast, boots over sneakers.");
+    if (o.tights === "fleece") tips.push("fleece-lined tights or two pairs layered, your legs will thank you.");
+    if (d.wind >= 30) tips.push(`windy (up to ${Math.round(d.wind)} km/h), the bozkır wind loves a flowy skirt so maybe shorts.`);
+    if (d.kind === "snow") tips.push("snow in the forecast, boots over mary janes.");
     else if (o.umbrella) tips.push(`${d.rain}% chance of rain, keep the umbrella in your bag.`);
-    if (!tips.length) tips.push(cold >= 18 ? "easy day, no layering puzzle." : "steady temps, one outfit all day.");
+    if (!tips.length) tips.push(!o.tights ? "bare legs weather, enjoy it while it lasts." : "steady temps, one outfit all day.");
     o.tip = tips.join(" ");
     const a = feel(d.morning), b = feel(d.afternoon);
     o.title = a === b ? `${a} all day` : `${a} morning, ${b} afternoon`;
@@ -774,18 +778,34 @@ body[data-view="wear"] #wear { display: grid; }
   }
 
   // ---------- the figure ----------
+  const star = (x, y, r, f) => `<path d="M${x} ${y - r} L${x + r * .3} ${y - r * .3} L${x + r} ${y} L${x + r * .3} ${y + r * .3} L${x} ${y + r} L${x - r * .3} ${y + r * .3} L${x - r} ${y} L${x - r * .3} ${y - r * .3} Z" fill="${f}"/>`;
   function figure(o, label) {
     const C = (v) => `var(${v})`;
     const p = [];
-    // legs + shoes
-    if (o.bottom === "shorts") {
-      p.push(`<path d="M46 136 L55 136 L54 184 L48 184 Z M65 136 L74 136 L72 184 L66 184 Z" fill="${C("--skin")}"/>`);
-      p.push(`<path d="M41 108 h38 l7 36 Q60 148 34 144 z" fill="${C("--c-shorts")}"/>`);
+    // legs: tights or bare
+    const legTop = o.bottom === "skirt" ? 136 : 132;
+    const legFill = o.tights ? C("--c-tights") : C("--skin");
+    const legOp = o.tights === "sheer" ? ` fill-opacity=".55"` : "";
+    if (o.tights === "sheer") p.push(`<path d="M46 ${legTop} L55 ${legTop} L54 184 L48 184 Z M65 ${legTop} L74 ${legTop} L72 184 L66 184 Z" fill="${C("--skin")}"/>`);
+    p.push(`<path d="M46 ${legTop} L55 ${legTop} L54 184 L48 184 Z M65 ${legTop} L74 ${legTop} L72 184 L66 184 Z" fill="${legFill}"${legOp}/>`);
+    // bottoms
+    if (o.bottom === "skirt") {
+      p.push(`<path d="M41 108 h38 l8 36 Q60 149 33 144 z" fill="${C("--c-skirt")}"/>`);
+      let lace = ""; for (let x = 35; x <= 85; x += 4.2) lace += `<circle cx="${x}" cy="${144.5 + Math.sin((x - 33) / 54 * Math.PI) * 2.6}" r="2.1"/>`;
+      p.push(`<g fill="${C("--c-lace")}">${lace}</g>`);
+      p.push(star(50, 124, 2.4, C("--c-lace")) + star(66, 133, 2, C("--c-lace")) + star(71, 118, 1.6, C("--c-lace")));
     } else {
-      p.push(`<path d="M40 108 h40 v6 l-3 70 h-13 l-4-62 l-4 62 h-13 l-3-70 z" fill="${C("--c-pants")}"/>`);
+      p.push(`<path d="M40 108 h40 v6 l1 22 h-18 l-3-14 l-3 14 h-18 l1-22 z" fill="${C("--c-shorts")}"/>`);
+      p.push(`<path d="M40 113 h40" stroke="${C("--c-lace")}" stroke-width="1.2" stroke-dasharray="1.5 1.5"/>`);
     }
-    p.push(`<ellipse cx="50" cy="187" rx="8.5" ry="4" fill="${C("--fg")}"/><ellipse cx="70" cy="187" rx="8.5" ry="4" fill="${C("--fg")}"/>`);
-    if (o.boots) p.push(`<rect x="44" y="170" width="13" height="17" rx="2" fill="${C("--fg")}"/><rect x="63" y="170" width="13" height="17" rx="2" fill="${C("--fg")}"/>`);
+    // shoes
+    if (o.boots) {
+      p.push(`<path d="M45 164 h12 v20 h3 q1 5 -3 5 h-13 z M63 164 h12 v20 h3 q1 5 -3 5 h-13 z" fill="${C("--c-shoe")}"/>`);
+      p.push(`<path d="M44 189 h17 M62 189 h17" stroke="${C("--c-shoe")}" stroke-width="3"/><g stroke="${C("--c-lace")}" stroke-width=".9"><path d="M48 168 h6 M48 172 h6 M48 176 h6 M66 168 h6 M66 172 h6 M66 176 h6"/></g>`);
+    } else {
+      p.push(`<path d="M44 183 h12 q5 0 5 4 v2 h-17 z M63 183 h12 q5 0 5 4 v2 h-17 z" fill="${C("--c-shoe")}"/><path d="M45 189.5 h16 M64 189.5 h16" stroke="${C("--c-shoe")}" stroke-width="2.2"/>`);
+      p.push(`<path d="M46 181 l9 0 M65 181 l9 0" stroke="${C("--c-shoe")}" stroke-width="1.6"/>`);
+    }
     // bare arms + hands (left hand down, right hand down or holding umbrella)
     const rHand = o.umbrella ? [92, 92] : [88, 106];
     p.push(`<path d="M44 56 L33 104 M76 56 L${rHand[0]} ${rHand[1] - 2}" stroke="${C("--skin")}" stroke-width="8" stroke-linecap="round" fill="none"/>`);
@@ -801,34 +821,43 @@ body[data-view="wear"] #wear { display: grid; }
     };
     p.push(sleeve(o.top === "tee" ? 0.32 : 0.9, topC, 11));
     p.push(`<path d="M42 57 Q42 49 51 48 L56 48 Q60 53 64 48 L69 48 Q78 49 78 57 L75.5 84 L80 112 L40 112 L44.5 84 Z" fill="${C(topC)}"/>`);
-    if (o.top === "knit") p.push(`<g stroke="var(--bg)" stroke-opacity=".35" stroke-width="1"><path d="M41 106 h38 M41 109 h38"/></g><path d="M55 48 Q60 55 65 48" stroke="var(--bg)" stroke-opacity=".4" stroke-width="2" fill="none"/>`);
+    if (o.top === "knit") p.push(`<g stroke="var(--bg)" stroke-opacity=".3" stroke-width="1"><path d="M41 106 h38 M41 109 h38"/></g><path d="M55 48 Q60 55 65 48" stroke="var(--bg)" stroke-opacity=".35" stroke-width="2" fill="none"/>`);
+    // little moon on the chest
+    if (!o.outer && !o.scarf) p.push(`<path d="M63 70 a6 6 0 1 0 0 10 a4.6 4.6 0 1 1 0 -10 z" fill="${C("--c-lace")}"/>`);
     // outer layer (open front so the top peeks out)
     if (o.outer) {
       const col = o.outer === "coat" ? "--c-coat" : o.outer === "jacket" ? "--c-jacket" : "--c-light";
-      const hem = o.outer === "coat" ? 150 : o.outer === "jacket" ? 118 : 114;
-      const flare = o.outer === "coat" ? 5 : 2;
+      const hem = o.outer === "coat" ? 150 : o.outer === "jacket" ? 116 : 128;
+      const flare = o.outer === "coat" ? 6 : o.outer === "light" ? 4 : 2;
       p.push(sleeve(0.94, col, 12.5));
       p.push(`<path d="M41 57 Q41 48 51 47 L56 47 L55 ${hem} L${39 - flare} ${hem} Z" fill="${C(col)}"/>`);
       p.push(`<path d="M79 57 Q79 48 69 47 L64 47 L65 ${hem} L${81 + flare} ${hem} Z" fill="${C(col)}"/>`);
-      p.push(`<path d="M51 47 L56 47 L54 62 Z M69 47 L64 47 L66 62 Z" fill="var(--bg)" fill-opacity=".25"/>`);
-      if (o.outer === "coat") p.push(`<g fill="var(--bg)" fill-opacity=".45"><circle cx="52" cy="78" r="1.4"/><circle cx="52" cy="96" r="1.4"/><circle cx="52" cy="114" r="1.4"/></g>`);
+      p.push(`<path d="M51 47 L56 47 L54 62 Z M69 47 L64 47 L66 62 Z" fill="var(--bg)" fill-opacity=".2"/>`);
+      if (o.outer === "light") {
+        let fr = ""; for (let x = 34; x <= 55; x += 3.5) fr += `<circle cx="${x}" cy="${hem}" r="1.6"/>`; for (let x = 65; x <= 86; x += 3.5) fr += `<circle cx="${x}" cy="${hem}" r="1.6"/>`;
+        p.push(`<g fill="${C(col)}">${fr}</g>`);
+      }
+      if (o.outer === "coat") p.push(`<g fill="${C("--c-lace")}" fill-opacity=".8"><circle cx="52" cy="78" r="1.3"/><circle cx="52" cy="96" r="1.3"/><circle cx="52" cy="114" r="1.3"/></g>`);
     }
+    // choker with a moon charm
+    p.push(`<rect x="55" y="41.5" width="10" height="2.6" rx="1.2" fill="${C("--c-shoe")}"/><circle cx="60" cy="46" r="1.5" fill="${C("--c-lace")}"/>`);
     // scarf
-    if (o.scarf) p.push(`<rect x="51" y="44" width="18" height="8" rx="4" fill="${C("--c-scarf")}"/><rect x="61" y="49" width="7" height="30" rx="2.5" fill="${C("--c-scarf")}"/><path d="M61.5 74 h6 M61.5 77 h6" stroke="var(--bg)" stroke-opacity=".4"/>`);
+    if (o.scarf) p.push(`<rect x="51" y="44" width="18" height="8" rx="4" fill="${C("--c-scarf")}"/><rect x="61" y="49" width="7" height="30" rx="2.5" fill="${C("--c-scarf")}"/><path d="M61.5 74 h6 M61.5 77 h6" stroke="var(--bg)" stroke-opacity=".35"/>`);
     // head + hair
     p.push(`<path d="M47 22 Q41 46 43 70 Q49 74 54 70 Q50 50 52 30 Z M73 22 Q79 46 77 70 Q71 74 66 70 Q70 50 68 30 Z" fill="${C("--hair")}"/>`);
     p.push(`<circle cx="60" cy="28" r="13" fill="${C("--skin")}"/>`);
-    if (!o.shades) p.push(`<g fill="${C("--hair")}"><ellipse cx="55" cy="29.5" rx="1.4" ry="1.7"/><ellipse cx="65" cy="29.5" rx="1.4" ry="1.7"/></g>`);
-    p.push(`<g fill="#e58f8f" fill-opacity=".55"><ellipse cx="52.5" cy="33.5" rx="2.2" ry="1.3"/><ellipse cx="67.5" cy="33.5" rx="2.2" ry="1.3"/></g><path d="M57.5 34.5 Q60 36.8 62.5 34.5" stroke="${C("--hair")}" stroke-width="1.1" fill="none" stroke-linecap="round"/>`);
+    if (!o.shades) p.push(`<g fill="${C("--hair")}"><ellipse cx="55" cy="29.5" rx="1.4" ry="1.7"/><ellipse cx="65" cy="29.5" rx="1.4" ry="1.7"/></g><path d="M53 28.2 l-1.4 -1 M67 28.2 l1.4 -1" stroke="${C("--hair")}" stroke-width=".9" stroke-linecap="round"/>`);
+    p.push(`<g fill="#e58f8f" fill-opacity=".45"><ellipse cx="52.5" cy="33.5" rx="2.2" ry="1.3"/><ellipse cx="67.5" cy="33.5" rx="2.2" ry="1.3"/></g><path d="M57.5 34.5 Q60 36.8 62.5 34.5" stroke="${C("--c-lip")}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`);
     p.push(`<path d="M46.6 31 Q44.5 13 60 13 Q75.5 13 73.4 31 Q72 21 64 19 Q58 25 47.6 27 Z" fill="${C("--hair")}"/>`);
-    if (o.beanie) p.push(`<path d="M46.5 25 Q47 11 60 11 Q73 11 73.5 25 Z" fill="${C("--c-scarf")}"/><rect x="45.5" y="22" width="29" height="5" rx="2.5" fill="${C("--c-scarf")}"/><circle cx="60" cy="9.5" r="3" fill="${C("--c-scarf")}"/>`);
-    if (o.shades) p.push(`<g fill="${C("--fg")}"><rect x="51.5" y="26" width="7.5" height="4.5" rx="2"/><rect x="61" y="26" width="7.5" height="4.5" rx="2"/></g><path d="M59 27.5 h2" stroke="${C("--fg")}"/>`);
+    if (o.beanie) p.push(`<path d="M46.5 25 Q47 11 60 11 Q73 11 73.5 25 Z" fill="${C("--c-scarf")}"/><rect x="45.5" y="22" width="29" height="5" rx="2.5" fill="${C("--c-scarf")}"/>${star(60, 17, 2.4, C("--c-lace"))}`);
+    else p.push(star(70, 17, 2.2, C("--c-lace")));   // star hair clip
+    if (o.shades) p.push(`<g fill="${C("--c-shoe")}"><circle cx="55.3" cy="28.5" r="3"/><circle cx="64.7" cy="28.5" r="3"/></g><path d="M58.3 28 h3.4" stroke="${C("--c-shoe")}"/>`);
     // umbrella
     if (o.umbrella) {
-      p.push(`<path d="M92 94 L92 0" stroke="${C("--fg")}" stroke-width="1.6"/><path d="M92 94 q0 6 -5 5" stroke="${C("--fg")}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`);
-      p.push(`<path d="M68 6 Q92 -22 116 6 Q110 1 104 6 Q98 1 92 6 Q86 1 80 6 Q74 1 68 6 Z" fill="${C("--c-umb")}"/>`);
+      p.push(`<path d="M92 94 L92 0" stroke="${C("--c-shoe")}" stroke-width="1.6"/><path d="M92 94 q0 6 -5 5" stroke="${C("--c-shoe")}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`);
+      p.push(`<path d="M68 6 Q92 -22 116 6 Q110 1 104 6 Q98 1 92 6 Q86 1 80 6 Q74 1 68 6 Z" fill="${C("--c-umb")}"/>${star(84, -3, 1.8, C("--c-lace"))}${star(100, -6, 1.5, C("--c-lace"))}`);
     }
-    return `<svg viewBox="22 -16 100 210" role="img" aria-label="${label}">${p.join("")}</svg>`;
+    return `<svg viewBox="22 -16 100 212" role="img" aria-label="${label}">${p.join("")}</svg>`;
   }
 
   // ---------- data ----------
