@@ -135,6 +135,62 @@ form .amt { flex: 0 1 110px; }
 .note { font-size: 12px; color: var(--muted); }
 .banner { font-size: 13px; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; }
 
+/* tabs */
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); justify-self: start; }
+.tabs button { border: 0; padding: 6px 14px; font-size: 13px; color: var(--muted); border-radius: 7px; }
+.tabs button[aria-selected="true"] { background: var(--soft); color: var(--fg); font-weight: 500; }
+#wear { grid-area: wear; display: none; }
+body[data-view="wear"] .wrap { grid-template-columns: minmax(0, 1fr); grid-template-areas: "banner" "wear"; align-content: start; }
+body[data-view="wear"] .wrap > section:not(#wear) { display: none; }
+body[data-view="wear"] #wear { display: grid; }
+
+/* what to wear */
+:root {
+  --skin: #d9b59a; --hair: #3b2c2a;
+  --c-tee: #e8dfd2; --c-long: #9fb3c8; --c-knit: #b07a5e; --c-light: #a9b49a; --c-jacket: #6f7f8f; --c-coat: #5b4a52;
+  --c-pants: #3f4f6b; --c-shorts: #8a9bb4; --c-scarf: #b4495f; --c-umb: var(--accent);
+  --sun: #d79a2b; --cloud: #a7a2aa; --rain: #5f86b5;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --skin: #c9a184; --hair: #120e10; --c-tee: #d8cfc2; --c-long: #7f95ab; --c-knit: #9c6a51; --c-light: #8d987f; --c-jacket: #586776; --c-coat: #6e5a64; --c-pants: #33415a; --c-shorts: #6e809a; --c-scarf: #c45a70; --sun: #e4ae4a; --cloud: #8f8a93; --rain: #7ea3cf; }
+}
+:root[data-theme="dark"] { --skin: #c9a184; --hair: #120e10; --c-tee: #d8cfc2; --c-long: #7f95ab; --c-knit: #9c6a51; --c-light: #8d987f; --c-jacket: #586776; --c-coat: #6e5a64; --c-pants: #33415a; --c-shorts: #6e809a; --c-scarf: #c45a70; --sun: #e4ae4a; --cloud: #8f8a93; --rain: #7ea3cf; }
+
+#wear { gap: 16px; max-width: 980px; width: 100%; justify-self: center; }
+.hero { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); align-items: center; }
+@media (min-width: 640px) { .hero { grid-template-columns: 220px minmax(0, 1fr); gap: 32px; } }
+.hero .fig { justify-self: center; width: 100%; max-width: 150px; }
+@media (min-width: 640px) { .hero .fig { max-width: 220px; } }
+.fig svg { display: block; width: 100%; height: auto; }
+.hero h3 { margin: 0; font-size: 26px; font-weight: 500; letter-spacing: -.01em; }
+.hero .sub { color: var(--muted); font-size: 13px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.wx { width: 22px; height: 22px; flex: none; }
+.times { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.times div { background: var(--soft); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+.times b { font-family: var(--mono); font-weight: 400; font-size: 20px; font-variant-numeric: tabular-nums; }
+.times small { color: var(--muted); font-size: 11px; }
+.items { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; border: 0; }
+.items li { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 8px; font-size: 13px; gap: 6px; }
+.items li i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.tip { font-size: 13px; color: var(--muted); margin: 0; }
+.hero-info { display: grid; gap: 14px; min-width: 0; }
+
+.week { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 560px) { .week { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .week { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+.day { display: grid; gap: 6px; justify-items: center; text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 8px; color: var(--fg); }
+.day[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.day .dn { font-size: 12px; font-weight: 500; }
+.day .dd { font-size: 11px; color: var(--muted); margin-top: -4px; }
+.day .fig { width: 64px; }
+.day .lohi { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.day .lohi span { color: var(--muted); }
+.range { width: 100%; height: 4px; border-radius: 2px; background: var(--soft); position: relative; }
+.range i { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: linear-gradient(90deg, var(--rain), var(--sun)); }
+.day .rp { font-size: 11px; color: var(--muted); min-height: 15px; }
+.day .rp.wet { color: var(--rain); font-weight: 500; }
+.wear-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+
 @media (max-width: 420px) { .stat b { font-size: 19px; } }
 @media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
 </style>
@@ -143,6 +199,10 @@ form .amt { flex: 0 1 110px; }
 
 <main class="wrap">
   <div class="topbar" id="topbar">
+    <div class="tabs" role="tablist" aria-label="View">
+      <button type="button" role="tab" id="tabStudy" data-view="study" aria-selected="true">Study</button>
+      <button type="button" role="tab" id="tabWear" data-view="wear" aria-selected="false">What to wear</button>
+    </div>
     <div id="signInBox" class="signin">
       <span>Sign in to save your time and sync your phone and mac.</span>
       <button type="button" id="signIn">Sign in with Google</button>
@@ -206,6 +266,22 @@ form .amt { flex: 0 1 110px; }
       <input class="amt num" id="spendAmt" type="number" inputmode="decimal" min="0" step="any" placeholder="TL" aria-label="Amount in TL">
       <button type="submit">Log</button>
     </form>
+  </section>
+
+  <section id="wear" aria-labelledby="wearH" role="tabpanel">
+    <div class="widget hero" id="hero">
+      <div class="fig" id="heroFig"></div>
+      <div class="hero-info">
+        <div class="head"><h2 id="wearH">What to wear · Ankara</h2><span class="note" id="heroWhen"></span></div>
+        <h3 id="heroTitle">Loading the forecast</h3>
+        <div class="sub" id="heroSub"></div>
+        <div class="times" id="heroTimes"></div>
+        <ul class="items" id="heroItems"></ul>
+        <p class="tip" id="heroTip"></p>
+      </div>
+    </div>
+    <div class="week" id="week"></div>
+    <div class="wear-foot"><span id="wearStatus"></span><span>forecast by open-meteo.com · feels-like temps</span></div>
   </section>
 </main>
 
@@ -601,6 +677,252 @@ form .amt { flex: 0 1 110px; }
       }, onErr));
     });
   })();
+})();
+</script>
+
+<script>
+// ---------- what to wear ----------
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const LAT = 39.93, LON = 32.86;                 // Ankara
+  const CACHE = "wear-forecast-v1";
+  const DAY_START_HOUR = 7;                       // same day boundary as the ledger
+  const URL_ = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON +
+    "&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,wind_speed_10m_max,uv_index_max" +
+    "&hourly=apparent_temperature,precipitation_probability&timezone=Europe%2FIstanbul&forecast_days=7";
+
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  };
+
+  // ---------- tabs ----------
+  function setView(v) {
+    document.body.dataset.view = v;
+    for (const b of document.querySelectorAll(".tabs button")) b.setAttribute("aria-selected", String(b.dataset.view === v));
+    store.set("view", v);
+    if (v === "wear") load();
+  }
+  for (const b of document.querySelectorAll(".tabs button")) b.onclick = () => setView(b.dataset.view);
+
+  // ---------- weather words + icons ----------
+  function wxKind(c) {
+    if (c === 0 || c === 1) return "sun";
+    if (c === 2) return "part";
+    if (c === 3) return "cloud";
+    if (c === 45 || c === 48) return "fog";
+    if ((c >= 71 && c <= 77) || c === 85 || c === 86) return "snow";
+    if (c >= 95) return "storm";
+    if (c >= 51) return "rain";
+    return "cloud";
+  }
+  const WX_TEXT = { sun: "clear", part: "partly cloudy", cloud: "cloudy", fog: "foggy", rain: "rain", snow: "snow", storm: "thunderstorms" };
+  function wxIcon(kind) {
+    const sun = '<circle cx="12" cy="12" r="4.5" fill="var(--sun)"/><g stroke="var(--sun)" stroke-width="1.6" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g>';
+    const cloud = (y = 0) => `<path transform="translate(0 ${y})" d="M7 18h10.5a3.5 3.5 0 0 0 .3-7 5 5 0 0 0-9.6-1.2A4 4 0 0 0 7 18z" fill="var(--cloud)"/>`;
+    const drops = '<g stroke="var(--rain)" stroke-width="1.6" stroke-linecap="round"><path d="M9 19.5l-1 2.5M13 19.5l-1 2.5M17 19.5l-1 2.5"/></g>';
+    const flakes = '<g fill="var(--rain)"><circle cx="8.5" cy="21" r="1"/><circle cx="12.5" cy="22" r="1"/><circle cx="16.5" cy="21" r="1"/></g>';
+    const inner = {
+      sun,
+      part: '<g transform="translate(-3 -3) scale(.8)">' + sun + "</g>" + cloud(1),
+      cloud: cloud(-1),
+      fog: cloud(-3) + '<g stroke="var(--cloud)" stroke-width="1.6" stroke-linecap="round"><path d="M5 19h14M7 22h10"/></g>',
+      rain: cloud(-3) + drops,
+      snow: cloud(-3) + flakes,
+      storm: cloud(-3) + '<path d="M12.5 15.5l-2 3.5h3l-2 3.5" stroke="var(--sun)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    }[kind];
+    return `<svg class="wx" viewBox="0 0 24 24" aria-hidden="true">${inner}</svg>`;
+  }
+
+  // ---------- outfit rules (feels-like °C) ----------
+  const feel = (t) => t <= 2 ? "freezing" : t <= 8 ? "cold" : t <= 14 ? "cool" : t <= 20 ? "mild" : t <= 26 ? "warm" : "hot";
+  function outfit(d) {
+    const cold = Math.min(d.morning, d.evening, d.amin + 2);  // when you leave and when you come back
+    const warm = Math.max(d.afternoon, d.amax - 1);
+    const o = {};
+    o.outer = cold <= 6 ? "coat" : cold <= 12 ? "jacket" : cold <= 17 ? "light" : null;
+    o.top = warm <= 14 ? "knit" : warm <= 21 ? "long" : "tee";
+    o.bottom = warm >= 26 ? "shorts" : "pants";
+    o.scarf = cold <= 3;
+    o.beanie = cold <= 0;
+    o.boots = d.kind === "snow";
+    o.umbrella = !o.boots && (d.rain >= 40 || d.kind === "rain" || d.kind === "storm");
+    o.shades = d.uv >= 5 && (d.kind === "sun" || d.kind === "part") && warm >= 16;
+    const items = [];
+    if (o.outer === "coat") items.push(["coat or puffer", "--c-coat"]);
+    if (o.outer === "jacket") items.push(["jacket", "--c-jacket"]);
+    if (o.outer === "light") items.push(["light jacket or cardigan", "--c-light"]);
+    items.push(o.top === "knit" ? ["sweater", "--c-knit"] : o.top === "long" ? ["long sleeve top", "--c-long"] : ["t-shirt", "--c-tee"]);
+    items.push(o.bottom === "shorts" ? ["shorts or a skirt", "--c-shorts"] : ["jeans or trousers", "--c-pants"]);
+    if (o.scarf) items.push(["scarf", "--c-scarf"]);
+    if (o.beanie) items.push(["beanie", "--c-scarf"]);
+    if (o.boots) items.push(["boots", "--fg"]);
+    if (o.umbrella) items.push(["umbrella", "--c-umb"]);
+    if (o.shades) items.push(["sunglasses", "--fg"]);
+    o.items = items;
+
+    const tips = [];
+    if (warm - cold >= 10) tips.push("big swing today, so wear layers you can peel off by afternoon. onion mode.");
+    if (d.wind >= 30) tips.push(`windy (up to ${Math.round(d.wind)} km/h), the bozkır wind cuts through so zip up.`);
+    if (d.kind === "snow") tips.push("snow in the forecast, boots over sneakers.");
+    else if (o.umbrella) tips.push(`${d.rain}% chance of rain, keep the umbrella in your bag.`);
+    if (!tips.length) tips.push(cold >= 18 ? "easy day, no layering puzzle." : "steady temps, one outfit all day.");
+    o.tip = tips.join(" ");
+    const a = feel(d.morning), b = feel(d.afternoon);
+    o.title = a === b ? `${a} all day` : `${a} morning, ${b} afternoon`;
+    return o;
+  }
+
+  // ---------- the figure ----------
+  function figure(o, label) {
+    const C = (v) => `var(${v})`;
+    const p = [];
+    // legs + shoes
+    if (o.bottom === "shorts") {
+      p.push(`<path d="M44 140 L56 140 L55 184 L47 184 Z M64 140 L76 140 L73 184 L65 184 Z" fill="${C("--skin")}"/>`);
+      p.push(`<path d="M40 108 h40 v6 l-1 30 h-17 l-2-20 l-2 20 h-17 l-1-30 z" fill="${C("--c-shorts")}"/>`);
+    } else {
+      p.push(`<path d="M40 108 h40 v6 l-3 70 h-13 l-4-62 l-4 62 h-13 l-3-70 z" fill="${C("--c-pants")}"/>`);
+    }
+    p.push(`<ellipse cx="50" cy="187" rx="8.5" ry="4" fill="${C("--fg")}"/><ellipse cx="70" cy="187" rx="8.5" ry="4" fill="${C("--fg")}"/>`);
+    if (o.boots) p.push(`<rect x="44" y="170" width="13" height="17" rx="2" fill="${C("--fg")}"/><rect x="63" y="170" width="13" height="17" rx="2" fill="${C("--fg")}"/>`);
+    // bare arms + hands (left hand down, right hand down or holding umbrella)
+    const rHand = o.umbrella ? [92, 92] : [88, 106];
+    p.push(`<path d="M44 56 L33 104 M76 56 L${rHand[0]} ${rHand[1] - 2}" stroke="${C("--skin")}" stroke-width="8" stroke-linecap="round" fill="none"/>`);
+    p.push(`<circle cx="33" cy="106" r="4.5" fill="${C("--skin")}"/><circle cx="${rHand[0]}" cy="${rHand[1]}" r="4.5" fill="${C("--skin")}"/>`);
+    // neck
+    p.push(`<rect x="55.5" y="38" width="9" height="13" rx="3" fill="${C("--skin")}"/>`);
+    // top
+    const topC = o.top === "knit" ? "--c-knit" : o.top === "long" ? "--c-long" : "--c-tee";
+    const sleeve = (len, col, w) => {
+      const lx = 44 - 11 * len, ly = 56 + 48 * len;
+      const rx = 76 + (rHand[0] - 76) * len, ry = 56 + (rHand[1] - 58) * len;
+      return `<path d="M44 56 L${lx} ${ly} M76 56 L${rx} ${ry}" stroke="${C(col)}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
+    };
+    p.push(sleeve(o.top === "tee" ? 0.32 : 0.9, topC, 11));
+    p.push(`<path d="M42 57 Q42 49 51 48 L56 48 Q60 53 64 48 L69 48 Q78 49 78 57 L80 112 L40 112 Z" fill="${C(topC)}"/>`);
+    if (o.top === "knit") p.push(`<g stroke="var(--bg)" stroke-opacity=".35" stroke-width="1"><path d="M41 106 h38 M41 109 h38"/></g><path d="M55 48 Q60 55 65 48" stroke="var(--bg)" stroke-opacity=".4" stroke-width="2" fill="none"/>`);
+    // outer layer (open front so the top peeks out)
+    if (o.outer) {
+      const col = o.outer === "coat" ? "--c-coat" : o.outer === "jacket" ? "--c-jacket" : "--c-light";
+      const hem = o.outer === "coat" ? 150 : o.outer === "jacket" ? 118 : 114;
+      const flare = o.outer === "coat" ? 5 : 2;
+      p.push(sleeve(0.94, col, 12.5));
+      p.push(`<path d="M41 57 Q41 48 51 47 L56 47 L55 ${hem} L${39 - flare} ${hem} Z" fill="${C(col)}"/>`);
+      p.push(`<path d="M79 57 Q79 48 69 47 L64 47 L65 ${hem} L${81 + flare} ${hem} Z" fill="${C(col)}"/>`);
+      p.push(`<path d="M51 47 L56 47 L54 62 Z M69 47 L64 47 L66 62 Z" fill="var(--bg)" fill-opacity=".25"/>`);
+      if (o.outer === "coat") p.push(`<g fill="var(--bg)" fill-opacity=".45"><circle cx="52" cy="78" r="1.4"/><circle cx="52" cy="96" r="1.4"/><circle cx="52" cy="114" r="1.4"/></g>`);
+    }
+    // scarf
+    if (o.scarf) p.push(`<rect x="51" y="44" width="18" height="8" rx="4" fill="${C("--c-scarf")}"/><rect x="61" y="49" width="7" height="30" rx="2.5" fill="${C("--c-scarf")}"/><path d="M61.5 74 h6 M61.5 77 h6" stroke="var(--bg)" stroke-opacity=".4"/>`);
+    // head + hair
+    p.push(`<circle cx="60" cy="28" r="13" fill="${C("--skin")}"/>`);
+    p.push(`<path d="M46.6 31 Q45 14 60 14 Q75 14 73.4 31 Q72 22 66 21 Q60 25 50 22 Q47.5 25 46.6 31 Z" fill="${C("--hair")}"/>`);
+    if (o.beanie) p.push(`<path d="M46.5 25 Q47 11 60 11 Q73 11 73.5 25 Z" fill="${C("--c-scarf")}"/><rect x="45.5" y="22" width="29" height="5" rx="2.5" fill="${C("--c-scarf")}"/><circle cx="60" cy="9.5" r="3" fill="${C("--c-scarf")}"/>`);
+    if (o.shades) p.push(`<g fill="${C("--fg")}"><rect x="51.5" y="26" width="7.5" height="4.5" rx="2"/><rect x="61" y="26" width="7.5" height="4.5" rx="2"/></g><path d="M59 27.5 h2" stroke="${C("--fg")}"/>`);
+    // umbrella
+    if (o.umbrella) {
+      p.push(`<path d="M92 94 L92 0" stroke="${C("--fg")}" stroke-width="1.6"/><path d="M92 94 q0 6 -5 5" stroke="${C("--fg")}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`);
+      p.push(`<path d="M68 6 Q92 -22 116 6 Q110 1 104 6 Q98 1 92 6 Q86 1 80 6 Q74 1 68 6 Z" fill="${C("--c-umb")}"/>`);
+    }
+    return `<svg viewBox="22 -16 100 210" role="img" aria-label="${label}">${p.join("")}</svg>`;
+  }
+
+  // ---------- data ----------
+  let days = [], selected = 0, loading = false;
+
+  function parse(j) {
+    const hourly = {};
+    j.hourly.time.forEach((t, i) => { hourly[t] = { a: j.hourly.apparent_temperature[i], r: j.hourly.precipitation_probability[i] }; });
+    return j.daily.time.map((date, i) => {
+      const h = (hh) => (hourly[`${date}T${hh}:00`] || {}).a;
+      const d = {
+        date,
+        code: j.daily.weather_code[i],
+        tmax: j.daily.temperature_2m_max[i], tmin: j.daily.temperature_2m_min[i],
+        amax: j.daily.apparent_temperature_max[i], amin: j.daily.apparent_temperature_min[i],
+        rain: j.daily.precipitation_probability_max[i] ?? 0,
+        wind: j.daily.wind_speed_10m_max[i] ?? 0,
+        uv: j.daily.uv_index_max[i] ?? 0,
+      };
+      d.morning = h("08") ?? d.amin; d.afternoon = h("15") ?? d.amax; d.evening = h("20") ?? d.amin;
+      d.kind = wxKind(d.code);
+      d.o = outfit(d);
+      return d;
+    });
+  }
+
+  // which forecast day is "today" by the ledger's 7am rule
+  function ledgerToday() {
+    const n = new Date();
+    if (n.getHours() < DAY_START_HOUR) n.setDate(n.getDate() - 1);
+    return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`;
+  }
+  function relName(date) {
+    const t = new Date(ledgerToday() + "T12:00"), d = new Date(date + "T12:00");
+    const diff = Math.round((d - t) / 864e5);
+    return diff === 0 ? "today" : diff === 1 ? "tomorrow" : null;
+  }
+  const dayName = (date, style) => new Date(date + "T12:00").toLocaleDateString("en-GB", style);
+  const deg = (t) => `${Math.round(t)}°`;
+
+  function render() {
+    const lt = ledgerToday();
+    days = days.filter((d) => d.date >= lt);
+    if (!days.length) return;
+    if (selected >= days.length) selected = 0;
+    const d = days[selected], o = d.o;
+    const rel = relName(d.date);
+    $("heroFig").innerHTML = figure(o, `outfit for ${dayName(d.date, { weekday: "long" })}: ${o.items.map((x) => x[0]).join(", ")}`);
+    $("heroWhen").textContent = (rel ? rel + " · " : "") + dayName(d.date, { weekday: "long", day: "numeric", month: "long" });
+    $("heroTitle").textContent = o.title;
+    $("heroSub").innerHTML = `${wxIcon(d.kind)}<span>${WX_TEXT[d.kind]} · ${deg(d.tmin)} to ${deg(d.tmax)} actual · rain ${d.rain}%</span>`;
+    $("heroTimes").innerHTML = [["8 am", d.morning], ["3 pm", d.afternoon], ["8 pm", d.evening]]
+      .map(([l, t]) => `<div><small>${l}</small><b>${deg(t)}</b><small>${feel(t)}</small></div>`).join("");
+    $("heroItems").innerHTML = o.items.map(([n, c]) => `<li><i style="background:var(${c})"></i>${n}</li>`).join("");
+    $("heroTip").textContent = o.tip;
+
+    const lo = Math.min(...days.map((x) => x.amin)), hi = Math.max(...days.map((x) => x.amax));
+    const pct = (t) => ((t - lo) / Math.max(1, hi - lo)) * 100;
+    const wk = $("week");
+    wk.textContent = "";
+    days.forEach((x, i) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "day";
+      b.setAttribute("aria-pressed", String(i === selected));
+      const r = relName(x.date);
+      b.innerHTML =
+        `<span class="dn">${r ? r[0].toUpperCase() + r.slice(1) : dayName(x.date, { weekday: "short" })}</span>` +
+        `<span class="dd">${dayName(x.date, { day: "numeric", month: "short" })}</span>` +
+        `<div class="fig">${figure(x.o, x.o.items.map((y) => y[0]).join(", "))}</div>` +
+        `<span class="lohi">${deg(x.amin)} <span>/</span> ${deg(x.amax)}</span>` +
+        `<div class="range"><i style="left:${pct(x.amin)}%;right:${100 - pct(x.amax)}%"></i></div>` +
+        `<span class="rp${x.rain >= 40 ? " wet" : ""}">${x.rain >= 20 ? "rain " + x.rain + "%" : WX_TEXT[x.kind]}</span>`;
+      b.onclick = () => { selected = i; render(); if (window.innerWidth < 640) $("hero").scrollIntoView({ behavior: "smooth", block: "start" }); };
+      wk.appendChild(b);
+    });
+  }
+
+  async function load(force) {
+    const c = store.get(CACHE);
+    if (c && c.j && !days.length) { days = parse(c.j); render(); $("wearStatus").textContent = "updated " + new Date(c.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
+    if (!force && c && Date.now() - c.at < 60 * 60000) return;
+    if (loading) return; loading = true;
+    try {
+      const r = await fetch(URL_);
+      if (!r.ok) throw new Error(r.status);
+      const j = await r.json();
+      store.set(CACHE, { at: Date.now(), j });
+      days = parse(j); render();
+      $("wearStatus").textContent = "updated " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    } catch (e) {
+      if (!days.length) { $("heroTitle").textContent = "Couldn't load the forecast"; $("heroTip").textContent = "Check your connection, then switch tabs to try again."; }
+      $("wearStatus").textContent = days.length ? "showing the last saved forecast" : "";
+    } finally { loading = false; }
+  }
+
+  const hashView = location.hash === "#wear" ? "wear" : null;
+  setView(hashView || store.get("view") || "study");
 })();
 </script>
 </body>
