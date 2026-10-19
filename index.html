@@ -753,7 +753,7 @@ body[data-view="wear"] #wear { display: grid; }
     if (o.outer === "jacket") items.push(["jacket", "--c-jacket"]);
     if (o.outer === "light") items.push(["light jacket or cardigan", "--c-light"]);
     items.push(o.top === "knit" ? ["sweater", "--c-knit"] : o.top === "long" ? ["long sleeve top", "--c-long"] : ["t-shirt", "--c-tee"]);
-    items.push(o.bottom === "shorts" ? ["shorts or a skirt", "--c-shorts"] : ["jeans or trousers", "--c-pants"]);
+    items.push(o.bottom === "shorts" ? ["skirt or a dress", "--c-shorts"] : ["jeans or trousers", "--c-pants"]);
     if (o.scarf) items.push(["scarf", "--c-scarf"]);
     if (o.beanie) items.push(["beanie", "--c-scarf"]);
     if (o.boots) items.push(["boots", "--fg"]);
@@ -779,8 +779,8 @@ body[data-view="wear"] #wear { display: grid; }
     const p = [];
     // legs + shoes
     if (o.bottom === "shorts") {
-      p.push(`<path d="M44 140 L56 140 L55 184 L47 184 Z M64 140 L76 140 L73 184 L65 184 Z" fill="${C("--skin")}"/>`);
-      p.push(`<path d="M40 108 h40 v6 l-1 30 h-17 l-2-20 l-2 20 h-17 l-1-30 z" fill="${C("--c-shorts")}"/>`);
+      p.push(`<path d="M46 136 L55 136 L54 184 L48 184 Z M65 136 L74 136 L72 184 L66 184 Z" fill="${C("--skin")}"/>`);
+      p.push(`<path d="M41 108 h38 l7 36 Q60 148 34 144 z" fill="${C("--c-shorts")}"/>`);
     } else {
       p.push(`<path d="M40 108 h40 v6 l-3 70 h-13 l-4-62 l-4 62 h-13 l-3-70 z" fill="${C("--c-pants")}"/>`);
     }
@@ -800,7 +800,7 @@ body[data-view="wear"] #wear { display: grid; }
       return `<path d="M44 56 L${lx} ${ly} M76 56 L${rx} ${ry}" stroke="${C(col)}" stroke-width="${w}" stroke-linecap="round" fill="none"/>`;
     };
     p.push(sleeve(o.top === "tee" ? 0.32 : 0.9, topC, 11));
-    p.push(`<path d="M42 57 Q42 49 51 48 L56 48 Q60 53 64 48 L69 48 Q78 49 78 57 L80 112 L40 112 Z" fill="${C(topC)}"/>`);
+    p.push(`<path d="M42 57 Q42 49 51 48 L56 48 Q60 53 64 48 L69 48 Q78 49 78 57 L75.5 84 L80 112 L40 112 L44.5 84 Z" fill="${C(topC)}"/>`);
     if (o.top === "knit") p.push(`<g stroke="var(--bg)" stroke-opacity=".35" stroke-width="1"><path d="M41 106 h38 M41 109 h38"/></g><path d="M55 48 Q60 55 65 48" stroke="var(--bg)" stroke-opacity=".4" stroke-width="2" fill="none"/>`);
     // outer layer (open front so the top peeks out)
     if (o.outer) {
@@ -816,8 +816,11 @@ body[data-view="wear"] #wear { display: grid; }
     // scarf
     if (o.scarf) p.push(`<rect x="51" y="44" width="18" height="8" rx="4" fill="${C("--c-scarf")}"/><rect x="61" y="49" width="7" height="30" rx="2.5" fill="${C("--c-scarf")}"/><path d="M61.5 74 h6 M61.5 77 h6" stroke="var(--bg)" stroke-opacity=".4"/>`);
     // head + hair
+    p.push(`<path d="M47 22 Q41 46 43 70 Q49 74 54 70 Q50 50 52 30 Z M73 22 Q79 46 77 70 Q71 74 66 70 Q70 50 68 30 Z" fill="${C("--hair")}"/>`);
     p.push(`<circle cx="60" cy="28" r="13" fill="${C("--skin")}"/>`);
-    p.push(`<path d="M46.6 31 Q45 14 60 14 Q75 14 73.4 31 Q72 22 66 21 Q60 25 50 22 Q47.5 25 46.6 31 Z" fill="${C("--hair")}"/>`);
+    if (!o.shades) p.push(`<g fill="${C("--hair")}"><ellipse cx="55" cy="29.5" rx="1.4" ry="1.7"/><ellipse cx="65" cy="29.5" rx="1.4" ry="1.7"/></g>`);
+    p.push(`<g fill="#e58f8f" fill-opacity=".55"><ellipse cx="52.5" cy="33.5" rx="2.2" ry="1.3"/><ellipse cx="67.5" cy="33.5" rx="2.2" ry="1.3"/></g><path d="M57.5 34.5 Q60 36.8 62.5 34.5" stroke="${C("--hair")}" stroke-width="1.1" fill="none" stroke-linecap="round"/>`);
+    p.push(`<path d="M46.6 31 Q44.5 13 60 13 Q75.5 13 73.4 31 Q72 21 64 19 Q58 25 47.6 27 Z" fill="${C("--hair")}"/>`);
     if (o.beanie) p.push(`<path d="M46.5 25 Q47 11 60 11 Q73 11 73.5 25 Z" fill="${C("--c-scarf")}"/><rect x="45.5" y="22" width="29" height="5" rx="2.5" fill="${C("--c-scarf")}"/><circle cx="60" cy="9.5" r="3" fill="${C("--c-scarf")}"/>`);
     if (o.shades) p.push(`<g fill="${C("--fg")}"><rect x="51.5" y="26" width="7.5" height="4.5" rx="2"/><rect x="61" y="26" width="7.5" height="4.5" rx="2"/></g><path d="M59 27.5 h2" stroke="${C("--fg")}"/>`);
     // umbrella
